@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories = true, category_filter = ["danger", "success"]) %}
+    {% if messages %}
+        {% for category, message in messages %}
+<div id="action-alert" class="alert position-fixed alert-{{ category }}" role="alert" style="z-index: 5; top: 90px; right: 10px; display: none;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}    
+{% endwith %}
+
+<div class="row">
+    <div class="col">
+        <h1>TRO</h1>
+    </div>
+    <div class="col-auto align-bottom">
+        <button type="button" class="my-1 btn btn-success btn-sm " title="Importar TRO" data-toggle="modal" data-target="#state-modal"><i class="fa-solid fa-file-import"></i></button>
+    </div>
+</div>
+
+<div class="mt-3 col-12">
+    <table id="datatable" class="table table-striped hoverable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Fabricante</th>
+                <th>Product Number</th>
+                <th>Descripción</th>
+                <th>Serial Number</th>
+                <th>Factura</th>
+                <th>Pedido</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Periodo</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+{% endblock content %}
+
+
+
+{% block modal %}
+
+<div class="modal" tabindex="-1" id="state-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-gray-200">
+                <h5 class="modal-title font-weight-bold text-primary">Importación de nuevo TRO</h5>
+            </div>
+
+            <form method="POST" action="{{ url_for('tro.home') }}" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <div class="modal-body mx-4">
+                    <p>Añadir el nuevo fichero de TRO.</p>                
+                    {{ form.file }}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    {{ form.submit(class = "btn btn-primary") }}
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock modal %}
+
+
+
+{% block js %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        table = $("#datatable").DataTable({
+            ajax: {
+                "url": "{{ url_for('tro.tro_data') }}",
+                "type": "POST"
+            },
+            serverSide: true,
+            "language": {"url": "{{ url_for('static', filename='lib/datatables/es_es.json') }}"},
+        });
+
+        // Mostrar mensaje con el resultado
+        {% with message = get_flashed_messages(with_categories = true, category_filter = ["danger", "success"]) %}
+        $("#action-alert").fadeIn("slow").delay(2000).fadeOut(400);
+        {% endwith %}
+    });
+</script>
+
+{% endblock js %}

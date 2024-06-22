@@ -1,0 +1,66 @@
+<!-- Sidebar -->
+<ul class="navbar-nav bg-kostal sidebar sidebar-dark accordion {% if current_user.get_sidebar_toggled() %}toggled{% endif %}" id="accordionSidebar">
+
+    <!-- Logo -->
+    <a class="sidebar-brand secondary d-flex align-items-center justify-content-center" href="{{url_for('main.home')}}">
+        <div class="sidebar-brand-icon"><img src="{{ url_for('static', filename='img/K.webp') }}"></div>
+        <div class="sidebar-brand-text"> <img src="{{ url_for('static', filename='img/KOSTAL.webp') }}" style="max-width: 80%;"></div>                
+    </a>
+
+    <hr class="sidebar-divider my-0">
+    <hr class="sidebar-divider">
+
+    <!-- Home -->
+    <li class="nav-item" id="section-home">
+        <a class="nav-link" href="{{ url_for('main.home') }}">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- Computers -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#computers"
+            aria-expanded="true" aria-controls="computers">
+            <i class="fa-solid fa-computer"></i>
+            <span>PCs</span>
+        </a>
+        <div id="computers" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">PCs:</h6>
+                <a class="collapse-item" href="{{ url_for('computers.active_computers') }}"  id="section-active-computers">Master</a>
+                <a class="collapse-item" href="{{ url_for('computers.to_format_computers') }}"  id="section-to-format-computers">Pendientes formateo</a>
+                <a class="collapse-item" href="{{ url_for('computers.computer_models') }}" id="section-computer-models">Modelos</a>
+            </div>
+        </div>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- TRO -->
+    <li class="nav-item" id="section-tro">
+        <a class="nav-link" href="{{ url_for('tro.home') }}">
+            <i class="fa-solid fa-table-list"></i>
+            <span>TRO</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#renting"
+            aria-expanded="true" aria-controls="renting">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Econocom</span>
+        </a>
+        <div id="renting" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ url_for('computers.to_return_computers') }}"  id="section-to-return-computers">Pendientes devolución</a>
+            </div>
+        </div>
+    </li>
+
+    <hr class="sidebar-divider">
+
+</ul>
+<!-- End of Sidebar -->

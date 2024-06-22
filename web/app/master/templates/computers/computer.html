@@ -1,0 +1,415 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid col-xl-10 col-xxl-6">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row">
+                <div class="col">
+                    <h3 class="my-1 font-weight-bold text-primary">{{ computer.sn }}</h3>
+                </div>
+                <div class="col-auto align-bottom">
+                    <button class="my-1 btn btn-danger btn-sm mr-2" title="Eliminar" data-toggle="modal" data-target="#delete-modal"><i class="fa-solid fa-trash"></i></i></button>
+                    <button class="my-1 btn btn-success btn-sm" title="Modificar" onclick="show_modify_form();"><i class="fa-solid fa-pencil"></i></button>
+                </div>     
+            </div>
+                   
+        </div>
+
+        <div class="card-body px-5 py-4 offset-2 col-8">
+            <form method="POST" name="modify-form" action="{{ url_for('computers.computer_modify', sn = computer.sn) }}" class="offset-2">
+                {{ modify_form.csrf_token }}
+
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Hostname</span>
+                    </div>
+                    <div class="col-6">
+                        <span>{{ modify_form.hostname(class="form-control semi-bold") }}</span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Serial Number</span>
+                    </div>
+                    <div class="col-6">
+                        <span>{{ modify_form.sn(class="form-control semi-bold") }}</span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Product Number</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold" id="pn" name="pn" readonly="" type="text" value="{{ computer.pn }}"></span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Modelo</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="string-field"><input class="form-control semi-bold" readonly="" type="text" value="{{ computer.model }}"></span>
+                        <span class="select-field" style="display: none;">{{ modify_form.model(class="form-control custom-select semi-bold", onchange="update_selected_model_info()") }}</span>
+                    </div>
+                </div>
+    
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Tipo</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold {{ computer.type_name.lower() }}" id="type_name" name="type_name" readonly="" type="text" value="{{ computer.type_name }}"></span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Descripción</span>
+                    </div>
+                    <div class="col-6">
+                        <span>{{ modify_form.description(class="form-control semi-bold") }}</span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Estado</span>
+                    </div>
+                    {% if computer.state_name == "Nuevo" or computer.state_name == "Configurado" %}
+                    {% set color = "blue" %}
+                    {% elif computer.state_name == "Pendiente de entrega" %}
+                    {% set color = "lightblue" %}
+                    {% elif computer.state_name == "En uso" %}
+                    {% set color = "green" %}
+                    {% elif computer.state_name == "Baja" or computer.state_name == "Formateado" %}
+                    {% set color = "orange" %}
+                    {% elif computer.state_name == "Recompra" or computer.state_name == "Devuelto Econocom" or computer.state_name == "Devuelto Terceros" or computer.state_name == "Tirado" or computer.state_name == "Desaparecido" %}
+                    {% set color = "red" %}
+                    {% endif %}
+                    <div class="col-6">
+                        <span class="string-field"><input id="string-state" class="form-control semi-bold {{ color }}" readonly="" type="text" value="{{ computer.state_name }}"></span>
+                        <span class="select-field" style="display: none;">{{ modify_form.state(class="form-control custom-select semi-bold " + color, onchange = "update_selected_state_color()") }}</span>
+                    </div>
+                </div>
+
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Origen</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="string-field"><input class="form-control semi-bold" readonly="" type="text" value="{{ computer.origin }}"></span>
+                        <span class="select-field" style="display: none;">{{ modify_form.origin(class="form-control custom-select semi-bold") }}</span>
+                    </div>
+                </div>
+
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Notas</span>
+                    </div>
+                    <div class="col-6 semi-bold">
+                        <span>{{ modify_form.notes(class="form-control") }}</span>
+                    </div>
+                </div>
+
+                <br>
+            
+                {% if computer.is_renting %}
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>ID Econocom</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold" readonly="" type="text" value="{{ computer.tro_id if computer.tro_id }}"></span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Fecha inicio</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold" readonly="" type="text" value="{{ computer.start_date if computer.start_date }}"></span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Fecha fin</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold" readonly="" type="text" value="{{ computer.end_date if computer.end_date }}"></span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if computer.po %}
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Customer PO</span>
+                    </div>
+                    <div class="col-6 semi-bold">
+                        <span>{{ modify_form.po(class="form-control") }}</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <button id="cancel-modify-btn" class="btn btn-secondary" style="display: none;"><a href="{{ url_for('computers.computer', sn = computer.sn) }}" style="text-decoration: none; color: white;">Cancelar</a></button>
+                    </div>
+                    <div class="col">
+                        {{ modify_form.modify_submit(class = "btn btn-primary", style = "display: none;") }}
+                    </div>
+                </div>
+                
+            </form>
+
+            <!-- Abrir modal -->
+            {% if computer.state_id < 8 %}
+            <hr>
+            <div class="mt-3 col-12" style="display: flex; justify-content: flex-end">
+                {% if computer.state_id == 6 and (computer.is_renting or computer.is_purchase) %}
+                <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#state-modal" onclick="show_repurchase_btn()">Recompra</button>
+                {% endif %}
+
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#state-modal" onclick="hide_repurchase_btn()">
+                    {% if computer.state_id == 1 %}Configurar
+                    {% elif computer.state_id == 2 %}Asignar
+                    {% elif computer.state_id == 3 %}Entregar
+                    {% elif computer.state_id == 4 %}Retirar
+                    {% elif computer.state_id == 5 %}Formatear
+                    {% elif computer.state_id == 6 %}
+                        {% if computer.is_external %}Devolver a Terceros
+                        {% elif computer.is_purchase %}Tirar
+                        {% else %}Devolver a renting
+                        {% endif %}
+                    {% endif %}
+                </button>
+                
+            </div>
+            {% endif %}
+        
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+
+{% block modal %}
+
+{% if state_form %}
+<div class="modal" tabindex="-1" id="state-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-gray-200">
+                <h5 class="modal-title font-weight-bold text-primary">Cambio de estado</h5>
+            </div>
+
+            <form method="POST" name="state-form" action="{{ url_for('computers.computer_change_state', sn = computer.sn) }}">
+                {{ state_form.csrf_token }}
+                <div class="modal-body mx-4">                    
+                    {% if computer.state_id == 1 %}
+                        <p>Introducir un hostname para el nuevo equipo:</p>
+                        {{ state_form.hostname(class="form-control") }}
+
+                    {% elif computer.state_id == 2 %}
+                        <p>Asignar equipo al siguiente usuario o posición:</p>
+                        {{ state_form.description(class="form-control") }}
+                        
+                    {% elif computer.state_id == 3 %}
+                        <p>El equipo se marcará como entregado al usuario o posición asignado.</p>
+                        {% if state_form.previous_computer.choices|length > 1 %}
+                            <p>Seleccionar ordenador previo en caso de renovación del equipo:</p>
+                            {{ state_form.previous_computer(class="custom-select") }}
+                        {% endif %}
+
+                    {% elif computer.state_id == 4 %}
+                        <p>Se va dar de baja este equipo.</p>
+                    
+                    {% elif computer.state_id == 5 %}
+                        <p>El equipo se marcará como "formateado".
+
+                    {% elif computer.state_id == 6 %}
+                        {% if not computer.is_external %}
+                        <p id="repurchase-message" style="display: none;">El equipo se marcará como "Recomprado"</p>
+                        {% endif %}
+                        {% if computer.is_purchase %}
+                        <p id="state-message">El equipo se marcará como "Tirado".</p>
+                        {% else %}
+                        <p id="state-message">El equipo se marcará como "Devuelto".</p>
+                        {% endif %}
+
+                    {% endif %}
+
+
+                    <h5 class="mt-4">¿Estás seguro?</h5>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <form method="POST" name="state-form" action="{{ url_for('computers.computer', sn = computer.sn) }}">
+                        {{ state_form.csrf_token }}
+                        {% if computer.state_id == 1 %}
+                            {{ state_form.submitbtn(class = "btn btn-primary") }}                        
+                    
+                        {% elif computer.state_id == 2 %}
+                            {{ state_form.submitbtn(class = "btn btn-primary") }}
+                    
+                        {% elif computer.state_id == 3 %}
+                            {{ state_form.submitbtn(class = "btn btn-primary") }}
+                    
+                        {% elif computer.state_id == 4 %}
+                            {{ state_form.submitbtn(class = "btn btn-primary") }}
+                    
+                        {% elif computer.state_id == 5 %}
+                            {{ state_form.format_submit(class = "btn btn-primary") }}
+                    
+                        {% elif computer.state_id == 6 %}
+                            {% if computer.is_renting or computer.is_purchase %}                
+                            {{ state_form.repurchase_submit(class = "btn btn-primary") }}
+                            {% endif %}
+                            
+                            {{ state_form.submitbtn(class = "btn btn-primary") }}
+                    
+                        {% endif %}
+                    </form>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<div class="modal" tabindex="-1" id="delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-gray-200">
+                <h5 class="modal-title font-weight-bold text-primary">Eliminar equipo</h5>
+            </div>
+
+            <form method="POST" name="delete-form" action="{{ url_for('computers.computer_delete', sn = computer.sn) }}">
+                {{ delete_form.csrf_token }}
+                <div class="modal-body mx-4">  
+                    <p>Se eliminará el ordenador del sistema.</p>
+                    <h5 class="mt-4">¿Estás seguro?</h5>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    {{ delete_form.delete_submit(class = "btn btn-primary") }}    
+                </div>
+            </form>            
+
+        </div>
+    </div>
+</div>
+
+{% endblock modal %}
+
+
+
+{% block js %}
+
+<script>
+
+    function show_modify_form() {
+        // Muestra el formulario de modificación
+        document.getElementById("modify_submit").style.display = "inline";
+        document.getElementById("cancel-modify-btn").style.display = "inline";
+
+        // Quitar readonly de los campos del formulario que se pueden modificar
+        document.getElementById("hostname").removeAttribute("readonly");
+        document.getElementById("description").removeAttribute("readonly");
+        document.getElementById("notes").removeAttribute("readonly");
+        
+        // Ocultar campos y mostrar los selectores
+        document.getElementsByClassName("string-field").forEach(function(element) {
+            element.style.display = "none";
+        });
+        document.getElementsByClassName("select-field").forEach(function(element) {
+            element.style.display = "inline";
+        });
+    }
+
+    function update_selected_state_color() {
+        // Actualiza el color del campo Estado seleccionado
+        document.getElementById("state").classList.remove("blue");
+        document.getElementById("state").classList.remove("lightblue");
+        document.getElementById("state").classList.remove("green");
+        document.getElementById("state").classList.remove("orange");
+        document.getElementById("state").classList.remove("red");
+        document.getElementById("state").classList.add(window.state_colors[document.getElementById("state").value]);
+    }
+
+    function update_selected_model_info() {
+        // Actualiza los valores de los campos relacionados con el Modelo según el que se ha seleccionado
+        var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = JSON.parse(this.responseText);
+                    console.log(data);
+                    document.getElementById("pn").value = data["pn"];
+                    document.getElementById("type_name").value = data["type_name"];
+
+                    document.getElementById("type_name").classList.remove("laptop");
+                    document.getElementById("type_name").classList.remove("tablet");
+                    document.getElementById("type_name").classList.remove("workstation");
+                    document.getElementById("type_name").classList.remove("zbook");
+                    document.getElementById("type_name").classList.remove("pc");
+                    document.getElementById("type_name").classList.remove("pc-mini");
+                    document.getElementById("type_name").classList.add(data["type_name"].toLowerCase());
+                }
+            };
+            xhttp.open("POST", "{{ url_for('computers.computer_models') }}");
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            console.log(document.getElementById("model").value);
+            xhttp.send(JSON.stringify({"pn": document.getElementById("model").value}));
+    }
+
+    function show_repurchase_btn() {
+        document.getElementById("repurchase_submit").style.display = "inline";
+        document.getElementById("submitbtn").style.display = "none";
+
+        document.getElementById("repurchase-message").style.display = "inline";
+        document.getElementById("state-message").style.display = "none";
+    }
+
+    function hide_repurchase_btn() {
+        if (document.getElementById("repurchase_submit")) {
+            document.getElementById("repurchase_submit").style.display = "none";
+            document.getElementById("submitbtn").style.display = "inline";
+
+            document.getElementById("repurchase-message").style.display = "none";
+            document.getElementById("state-message").style.display = "inline";
+        }        
+    }
+
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        // Actualizar los colores de las distintas opciones de Estado
+        document.getElementById("state").options.forEach(function(element) {
+            element.className += `${window.state_colors[element.value]} semi-bold`
+        });
+
+        // Cambiar estilo de opciones Origen
+        document.getElementById("origin").options.forEach(function(element) {
+            element.className += "semi-bold"
+        });
+    })
+
+</script>
+
+{% endblock %}

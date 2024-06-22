@@ -1,0 +1,15 @@
+version: "2.10"
+
+services:
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=master
+      - POSTGRES_USER=master_data
+      - POSTGRES_PASSWORD=pwd4MASTER
+      - TZ=Europe/Madrid
+    

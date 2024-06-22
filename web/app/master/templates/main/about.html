@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="mt-3 col-12">
+
+    <div id="action-alert" class="alert position-fixed" role="alert" style="z-index: 5; top: 90px; right: 10px; display: none;"></div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h3 class="m-0 font-weight-bold text-primary">Información sobre la versión actual</h3>
+        </div>
+
+        <div class="card-body">
+            <p>
+                Versión {{config['VERSION']}}<br />
+                <ul>
+                    <li>Incorporadas ayudas visuales</li>
+                    <li>Eliminada fecha de aplicación en procedimiento Retest</li>
+                    <li>Incoporada la opción de descarga de QR</li>
+                    <li>Incorporado gestor de usuarios.</li>
+                    <li>Incorporado gestor de scrap.</li>
+                    <li>Incorporado gestor de procedimientos.</li>
+                    <li>Incorporado gestor de información sobre últimos cambios</li>
+                    <li>Incorporado gestor de información sobre últimos errores</li>
+                    <li>Añadida lína del LRE</li>
+                    <li>Añadidos procedimientos LRE por defecto</li>
+                    <li>Añadidas preferencias de usuario.</li>
+                </ul>
+                <hr />
+                Para cualquier duda contactar con el departamento de informática.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

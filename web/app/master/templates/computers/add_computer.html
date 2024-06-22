@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid col-xl-6 col-lg-5">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row">
+                <div class="col">
+                    <h3 class="my-1 font-weight-bold text-primary">Añadir nuevo ordenador</h3>
+                </div>    
+            </div>
+                
+        </div>
+
+        <div class="card-body px-5 py-4">
+            <form id="add-computer-form" method="POST" onsubmit="form_submit();">
+                {{ form.csrf_token }}
+                
+                <fieldset class="form-field input-group row mb-3">
+                    <div class="col-3">
+                        <span>Serial Number</span>
+                    </div>
+                    <div class="col-6">
+                        {% if form.sn.errors %}
+                        {{ form.sn(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {{ form.sn.errors[0] }}
+                        </div>
+                        {% else %}
+                        {{ form.sn(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-field input-group row mb-3">
+                    <div class="col-3">
+                        <span>Product Number</span>
+                    </div>
+                    <div class="col-6">
+                        {{ form.pn(class="form-control") }}
+                    </div>
+                    
+                </fieldset>
+                
+                <fieldset class="form-field input-group row mb-3">
+                    <div class="col-3">
+                        <span>Origen</span>
+                    </div>
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="col-auto">
+                                {{ form.is_renting(class = "origin-checkbox", onclick = "checkbox_click(this)") }}
+                                {{ form.is_renting.label }}
+                            </div>
+                            <div class="col-auto">
+                                {{ form.is_purchase(class = "origin-checkbox", onclick = "checkbox_click(this)") }}
+                                {{ form.is_purchase.label }}
+                            </div>
+                            <div class="col-auto">
+                                {{ form.is_external(class = "origin-checkbox", onclick = "checkbox_click(this)") }}
+                                {{ form.is_external.label }}
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>        
+                
+                <fieldset class="form-field input-group row mb-3">
+                    <div class="col-3">
+                        <span>Customer PO</span>
+                    </div>
+                    <div class="col-6">
+                        {{ form.po(class="form-control") }}
+                    </div>
+                </fieldset>
+                
+                <div id="computer-model-data" class="pt-4" style="display: none;">
+                    <p>El modelo introducido no existe, dar de alta:</p>
+                    <fieldset class="form-field input-group row mb-3">
+                        <div class="col-3">
+                            <span>Modelo</span>
+                        </div>
+                        <div class="col-6">
+                            {{ form.model(class="form-control") }}
+                        </div>
+                    </fieldset>
+                    <fieldset class="form-field input-group row mb-3">
+                        <div class="col-3">
+                            <span>Tipo</span>
+                        </div>
+                        <div class="col-6">
+                            {{ form.type_name(class="custom-select") }}
+                        </div>
+                    </fieldset>
+                </div>
+                
+                <hr>
+        
+                <fieldset class="form-field input-group col-6 mt-4">
+                    {{ form.submitbtn(class = "btn btn-primary") }}
+                </fieldset>
+
+
+                <div class="invalid-feedback" id="form-error" style="display: none;">
+                    <strong><span class="login-error-message" id="form-error-message"></span></strong>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+{% block js %}
+
+<script>
+
+    function form_submit() {
+        event.preventDefault();
+
+        if ((document.getElementById("computer-model-data").style.display == "block") && (document.getElementById("model").value != "")) {
+            document.getElementById("add-computer-form").submit();
+        } else {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                // Comprobar si el modelo introducido ya existe o también se debe dar de alta        
+                if (this.readyState == 4 && this.status == 200) {
+                    // Dar de alta el Ordenador
+                    document.getElementById("add-computer-form").submit();
+                    
+                } else if (this.readyState == 4 && this.status == 404) {
+                    if ((document.getElementById("computer-model-data").style.display == "block") && (document.getElementById("model").value != "")) {
+                        // Dar de alta el Ordenador y el Modelo
+                        document.getElementById("add-computer-form").submit();
+                    } else {
+                        // Mostrar la parte del formulario para alta de Modelo
+                        document.getElementById("computer-model-data").style.display = "block";
+                        document.getElementById("model").required = true;
+                        document.getElementById("type_name").required = true;
+                    }
+                }
+            };
+            xhttp.open("POST", "{{ url_for('computers.computer_models') }}");
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            console.log(document.getElementById("pn").innerText);
+            xhttp.send(JSON.stringify({"pn": document.getElementById("pn").value}));
+
+            return false;
+        }
+
+    }
+    
+
+    function checkbox_click(cbx) {
+        // Cambia la interacción de las checkbox que marcan el origen del ordenador para que solo se pueda seleccionar una opción a la vez.
+        if (document.getElementById(cbx.id).checked) {
+            document.getElementsByClassName("origin-checkbox").forEach(function(element) {
+                if (element.id != cbx.id) {
+                    element.checked = false;
+                } else {
+                    element.checked = true;
+                }
+            });
+        } else {
+            window.event.preventDefault();
+        }
+    }
+
+</script>
+
+{% endblock js %}

@@ -1,0 +1,60 @@
+{% extends "auth/layout.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card login-card">
+        <div class="row no-gutters">
+            <div class="col-md-5">
+                <img src="{{ url_for('auth.static', filename = 'kostal.jpg') }}" alt="login" class="login-card-img">
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <div class="pl-lg-5">
+                        <div class="brand-wrapper">
+                            <img src="{{ url_for('auth.static', filename = 'kostal-logo.png') }}" alt="logo" class="logo">
+                        </div>
+                        <p class="login-card-description">{{ config["APP_NAME"] }}</p>
+
+                        <!-- Formulario -->
+                        <form action="" method="POST" class="py-2">
+                            {{ form.hidden_tag() }} <!-- CSRF token -->
+                            {% if form.username.errors %}
+                                {{ form.username(class="form-control form-control-lg is-invalid") }}
+                                {{ form.password(class="form-control form-control-lg is-invalid") }}
+                            {% else %}
+                                {{ form.username(class="form-control form-control-lg") }}
+                                {{ form.password(class="form-control form-control-lg") }}
+                            {% endif %}
+                            {{ form.submit(class="btn btn-block login-btn mb-4") }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    <span class="login-error-message">{{ error }}</span>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script>
+    /* Mueve el autofocus al final del campo de usuario */
+    $(document).ready(function() {
+        var input = $("#username");
+        var len = input.val().length;
+        input[0].focus();
+        input[0].setSelectionRange(len, len);
+    });
+</script>
+
+{% endblock js %}

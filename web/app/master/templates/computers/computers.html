@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col">
+        <h1>{{ title }}</h1>
+    </div>
+    <div class="col-auto align-bottom">
+        <button class="my-1 btn btn-success btn-sm " id="btn-create" title="Añadir nuevo ordenador"><a href="{{ url_for('computers.computer_add') }}" style="color: #FFFFFF; text-decoration: none;"><i class="fa-solid fa-plus"></i></a></button>
+    </div>
+</div>
+
+<div class="mt-3 col-12">
+    <table id="datatable" class="table table-striped clickable hoverable">
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>Serial Number</th>
+                <th>Product Number</th>
+                <th>Modelo</th>
+                <th>Tipo</h>
+                <th>Descripción</h>
+                <th>Origen</th>
+                <th>Estado</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+{% endblock content %}
+
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+        table = $("#datatable").DataTable({
+            ajax: {
+                "url": "{{ url_for('computers.computers_data') }}",
+                "type": "POST",
+                {% if state_ids %}
+                "data": {
+                    "state_ids": {{ state_ids }}
+                }
+                {% endif %}
+            },
+            serverSide: true,
+            language: {"url": "{{ url_for('static', filename='lib/datatables/es_es.json') }}"},
+            rowCallback: function(row, data, index) {
+                if ((data[7] == "Nuevo") || (data[7] == "Configurado")) {
+                    $(row).find("td:eq(7)").addClass("blue");
+                    $(row).find("td:eq(7)").css({"font-weight": "bold"});
+                } else if (data[7] == "Pendiente de entrega") {
+                    $(row).find("td:eq(7)").addClass("lightblue");
+                    $(row).find("td:eq(7)").css({"font-weight": "bold"});
+                } else if (data[7] == "En uso") {
+                    $(row).find("td:eq(7)").addClass("green");
+                    $(row).find("td:eq(7)").css({"font-weight": "bold"});
+                } else if ((data[7] == "Baja") || (data[7] == "Formateado")) {
+                    $(row).find("td:eq(7)").addClass("orange");
+                    $(row).find("td:eq(7)").css({"font-weight": "bold"});
+                } else if ((data[7] == "Recompra") || (data[7] == "Devuelto Econocom") || (data[7] == "Devuelto Terceros") || (data[7] == "Tirado")) {
+                    $(row).find("td:eq(7)").addClass("red");
+                    $(row).find("td:eq(7)").css({"font-weight": "bold"});
+                }
+                
+                $(row).find("td:eq(4)").addClass(data[4].replace(" ","-").toLowerCase());
+                $(row).find("td:eq(4)").css({"font-weight": "bold"});
+            }
+        });
+    });
+
+    // Seleccionar fila
+    $("#datatable").on("dblclick", "tr", function () {
+        window.location.href = `{{ url_for('computers.active_computers') }}/${table.row(this).data()[1]}`;
+    });
+</script>
+
+{% endblock js %}

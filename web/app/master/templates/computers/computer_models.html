@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="mt-3 col-12">
+    <h1>Modelos</h1>
+</div>
+
+<div class="mt-3 col-12">
+    <table id="datatable" class="table table-striped clickable hoverable">
+        <thead>
+            <tr>
+                <th>Product Number</th>
+                <th>Modelo</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+{% endblock content %}
+
+
+{% block js %}
+
+<script>
+    $(document).ready(function () {
+        table = $("#datatable").DataTable({
+            ajax: {
+                "url": "{{ url_for('computers.models_data') }}",
+                "type": "POST"
+            },
+            serverSide: true,
+            "language": {"url": "{{ url_for('static', filename='lib/datatables/es_es.json') }}"},
+            rowCallback: function(row, data, index) {
+                $(row).find("td:eq(2)").addClass(data[2].replace(" ","-").toLowerCase());
+                $(row).find("td:eq(2)").css({"font-weight": "bold"});
+            }
+        });
+    });
+
+    // Seleccionar fila
+    $("#datatable").on("dblclick", "tr", function () {
+        window.location.href = `{{ url_for('computers.computer_models') }}/${table.row(this).data()[0]}`;
+    });
+
+</script>
+
+{% endblock js %}

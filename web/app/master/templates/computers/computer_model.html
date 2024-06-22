@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+
+<div class="container-fluid col-xl-10 col-6">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row">
+                <div class="col">
+                    <h3 class="my-1 font-weight-bold text-primary">{{ pn }}</h3>
+                </div>
+                <div class="col-auto align-bottom">
+                    <button class="my-1 btn btn-danger btn-sm mr-2" title="Eliminar" data-toggle="modal" data-target="#delete-modal"><i class="fa-solid fa-trash"></i></i></button>
+                    <button class="my-1 btn btn-success btn-sm" title="Modificar" onclick="show_modify_form();"><i class="fa-solid fa-pencil"></i></button>
+                </div>     
+            </div>
+                   
+        </div>
+
+        <div class="card-body px-5 py-4 offset-2">
+
+            <form method="POST" name="modify-form" action="{{ url_for('computers.computer_model_modify', pn = pn) }}">
+                {{ modify_form.csrf_token }}
+
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Product Number</span>
+                    </div>
+                    <div class="col-6">
+                        <span><input class="form-control semi-bold" id="pn" name="pn" readonly="" type="text" value="{{ modify_form.pn.data }}"></span>
+                    </div>
+                </div>
+            
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Modelo</span>
+                    </div>
+                    <div class="col-6">
+                        <span>{{ modify_form.model(class="form-control semi-bold") }}</span>
+                    </div>
+                </div>
+    
+                <div class="row mb-1">
+                    <div class="col-3">
+                        <span>Tipo</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="string-field"><input class="form-control semi-bold {{ modify_form.type_name.data.replace(' ', '-').lower() }}" readonly="" type="text" value="{{ modify_form.type_name.data }}"></span>
+                        <span class="select-field" style="display: none;">{{ modify_form.type_name(class="form-control custom-select semi-bold " + modify_form.type_name.data.replace(' ', '-').lower(), onchange="update_selected_model_info()") }}</span>
+                    </div>
+                </div>
+
+                {% if delete_form.errors.pn %}
+                    <div class="invalid-feedback mt-3">
+                    {% for error in delete_form.errors.pn %}
+                        <span class="login-error-message"><strong>{{ error }}</strong></span>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <button id="cancel-modify-btn" class="btn btn-secondary" style="display: none;"><a href="{{ url_for('computers.computer_model', pn = pn) }}" style="text-decoration: none; color: white;">Cancelar</a></button>
+                    </div>
+                    <div class="col">
+                        {{ modify_form.modify_submit(class = "btn btn-primary", style = "display: none;") }}
+                    </div>
+                </div>
+                
+            </form>
+        
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+
+{% block modal %}
+
+<div class="modal" tabindex="-1" id="delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-gray-200">
+                <h5 class="modal-title font-weight-bold text-primary">Eliminar equipo</h5>
+            </div>
+
+            <form method="POST" name="delete-form" action="{{ url_for('computers.computer_model_delete', pn = pn) }}">
+                <div class="modal-body mx-4">  
+                
+                    {{ delete_form.csrf_token }}
+                    <p>Se eliminará el modelo del sistema.</p>
+                    <h5 class="mt-4">¿Estás seguro?</h5>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    {{ delete_form.delete_submit(class = "btn btn-primary") }}    
+                </div>
+            </form>            
+
+        </div>
+    </div>
+</div>
+
+{% endblock modal %}
+
+
+
+{% block js %}
+
+<script>
+
+    function show_modify_form() {
+        // Muestra el formulario de modificación
+        document.getElementById("modify_submit").style.display = "inline";
+        document.getElementById("cancel-modify-btn").style.display = "inline";
+
+        // Quitar readonly de los campos del formulario que se pueden modificar
+        document.getElementById("model").removeAttribute("readonly");
+        document.getElementById("type_name").removeAttribute("readonly");
+        
+        // Ocultar campos y mostrar los selectores
+        document.getElementsByClassName("string-field").forEach(function(element) {
+            element.style.display = "none";
+        });
+        document.getElementsByClassName("select-field").forEach(function(element) {
+            element.style.display = "inline";
+        });
+    }
+
+    function update_selected_model_info() {
+        // Actualiza los valores de los campos relacionados con el Modelo según el que se ha seleccionado
+        document.getElementById("type_name").classList.remove("laptop");
+        document.getElementById("type_name").classList.remove("tablet");
+        document.getElementById("type_name").classList.remove("workstation");
+        document.getElementById("type_name").classList.remove("zbook");
+        document.getElementById("type_name").classList.remove("pc");
+        document.getElementById("type_name").classList.remove("pc-mini");
+        document.getElementById("type_name").classList.add(document.getElementById("type_name").value.replace(" ", "-").toLowerCase());
+    }
+
+</script>
+
+{% endblock %}

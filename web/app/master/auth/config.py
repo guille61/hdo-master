@@ -1,0 +1,7 @@
+LDAP_HOST = "ldap://10.50.2.51"
+LDAP_BASE = "OU=USR,DC=es,DC=kostal,DC=int"
+LDAP_BIND_USER_DN = "juve001" # Usuario de acceso a LDAP
+LDAP_BIND_USER_PASSWORD = "pwd4DEVELOP"
+
+READ_GROUP = "ES_HDO"
+WRITE_GROUP = "ES_HDO"
